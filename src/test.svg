@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg baseProfile="tiny" height="130mm" version="1.2" viewBox="0 0 170 130" width="170mm" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><line stroke="rgb(255,255,16)" stroke-dasharray="10 1" x1="0" x2="100" y1="0" y2="100" /><line stroke="blue" stroke-dasharray="10 1" stroke-width="1" x1="100" x2="-100" y1="0" y2="100" /><text fill="red" x="10" y="50">Test</text></svg>

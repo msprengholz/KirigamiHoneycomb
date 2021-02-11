@@ -2,6 +2,7 @@
 
 A tool for converting arbitrary geometry into kirigami honeycomb folding line diagrams (FLD). This projects is still in its early stages.
 
+![fcurves](docs/imgs/f_curves.png "Function curves")
 ![hexmesh](docs/imgs/hexmesh.png "Honeycomb 3D mesh")
 ![fld](docs/imgs/fld.png "Folding line diagram")
 

@@ -11,9 +11,8 @@ The idea is based on two publication from Saito et al.:
 
 Saito, K., Pellegrino, S., Nojima, T., 2014. Manufacture of Arbitrary Cross-Section Composite Honeycomb Cores Based on Origami Techniques. Journal of Mechanical Design 136, 051011. https://doi.org/10.1115/1.4026824
 
-Saito, K., Fujimoto, A., Okabe, Y., 2016. Design of a 3D Wing Honeycomb Core Based on Origami Techniques, in: Volume 5B: 40th Mechanisms and Robotics Conference. Presented at the ASME 2016 International Design Engineering Technical Conferences and Computers and Information in Engineering Conference, American Society of Mechanical Engineers, Charlotte, North Carolina, USA, p. V05BT07A026. https://doi.org/10.1115/DETC2016-60419
-
-The first paper explains how arbitrary cross sections can be converted to kirigami folding line diagrams. It can be accessed [here](https://core.ac.uk/download/pdf/33110081.pdf). In the second, this idea is further developed to morph the honeycomb cells to also cover 3D shapes.
+- Saito, K., Fujimoto, A., Okabe, Y., 2016. Design of a 3D Wing Honeycomb Core Based on Origami Techniques, in: Volume 5B: 40th Mechanisms and Robotics Conference. Presented at the ASME 2016 International Design Engineering Technical Conferences and Computers and Information in Engineering Conference, American Society of Mechanical Engineers, Charlotte, North Carolina, USA, p. V05BT07A026. https://doi.org/10.1115/DETC2016-60419
+- The first paper explains how arbitrary cross sections can be converted to kirigami folding line diagrams. It can be accessed [here](https://core.ac.uk/download/pdf/33110081.pdf). In the second, this idea is further developed to morph the honeycomb cells to also cover 3D shapes.
 
 Sadly, no source code has been published alongside. The mathematical description of the algorithm inside both papers is not correct to my understanding. Therefore, I have written my own implementation of the simplified algorithm (explained in detail below) based on the provided examples and (quite excellent) figures.
 
@@ -25,12 +24,11 @@ I have been looking for a way to build larger structures of freeform geometry. W
 
 - load any geometry and process it into a FLD
 - overcome the limitation that the arbitrarily shaped cross section is fixed along the third axis 
-  - add perforated lines to remove additional material, this should result in the wanted geometry
+  - add perforated lines to remove additional material; this should result in the wanted geometry
 - be able to split the FLD into multiple parts that can be joined back together after folding
-  - this is mostly constrained by manufacturing (the size of the laser cutter)
-- load additional cutting geometry
+  - this is needed because laser cutters are limited in the sheet size they can work on
   - the FLD approximates the outer curves of the mesh
-  - inner cavities should also be drawn on the FLD 
+  - inner cavities should also be drawn on the FLD as perforations that can be removed after folding and gluing 
 
 ## Defining The Process
 

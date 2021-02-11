@@ -2,6 +2,9 @@
 
 A tool for converting arbitrary geometry into kirigami honeycomb folding line diagrams. This projects is still in its early stages.
 
+![hexmesh](docs/imgs/hexmesh.png "Honeycomb 3D mesh")
+![fld](docs/imgs/fld.png "Folding line diagram")
+
 ## Prior Work
 
 The idea is based on two publication from Saito et al.:

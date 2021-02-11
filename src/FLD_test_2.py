@@ -312,7 +312,7 @@ y = ub(x)
 #plt.plot(xlp, ylp_u, '-o')
 #plt.plot(xlp, ylp_l, '-o')
 #plt.plot(vx, vy, 'o')
-plt.plot(hx, hy, 'o')
+#plt.plot(hx, hy, 'o')
 plt.axis('scaled')
 plt.show()
 

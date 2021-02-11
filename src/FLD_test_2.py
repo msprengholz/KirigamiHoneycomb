@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 cs = 20 # honeycomb cell size in w direction
 c_gap = cs / (2*np.cos(np.pi/6)) # gap lenght betwenn folding lines in l direction
 #print(c_gap)
-xl = 190 # width of panel perpendical to folding direction/ later defined by geometry
+xl = 100 # width of panel perpendical to folding direction/ later defined by geometry
 
 # define lower and upper bound fucntion
 ld = 0 # lower domain boundary
@@ -257,7 +257,7 @@ mesh = trimesh.Trimesh(vertices=p3d,
                        process=True)
 
 #mesh.show(smooth=False)
-#mesh.export("hex.stl")
+mesh.export("hex.stl")
 
 # create svg FLD output file
 vx_max = np.amax(vx)

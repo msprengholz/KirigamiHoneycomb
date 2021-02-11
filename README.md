@@ -1,6 +1,6 @@
-# Kirigami Honeycomb
+# Kirigami Honeycomb FLDs
 
-A tool for converting arbitrary geometry into kirigami honeycomb folding line diagrams. This projects is still in its early stages.
+A tool for converting arbitrary geometry into kirigami honeycomb folding line diagrams (FLD). This projects is still in its early stages.
 
 ![hexmesh](docs/imgs/hexmesh.png "Honeycomb 3D mesh")
 ![fld](docs/imgs/fld.png "Folding line diagram")
@@ -21,3 +21,14 @@ Sadly, no source code has been published alongside. The mathematical description
 
 I have been looking for a way to build larger structures of freeform geometry. While 3D printers work well for tiny parts they are limited by their build volume. Manufacturing kirigami patterns with a laser cutter allows larger structures that still can be made at home with relatively few and cheap tools. In the end, this tool should allow to load a geometry mesh and provide the corresponding folding line diagram that matches the input geometry as close as possible when folded. While the goal is pretty clear, the process to get there is not.
 
+## Defining The Process
+
+For now, I am still deciding on how to achieve the above mentioned goal. 
+
+## Contributing
+
+If you have an idea regarding this tool, please let me know by creating an issue. As it is still in its design phase, I won't be accepting pull request. This will change when the shape of this project becomes clearer.
+
+## License
+
+MIT, see LICENSE file

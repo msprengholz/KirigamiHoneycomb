@@ -21,43 +21,131 @@ Sadly, no source code has been published alongside. The mathematical description
 
 I have been looking for a way to build larger structures of freeform geometry. While 3D printers work well for tiny parts they are limited by their build volume. Manufacturing kirigami patterns with a laser cutter allows larger structures that still can be made at home with relatively few and cheap tools. In the end, this tool should allow to load a geometry mesh and provide the corresponding folding line diagram that matches the input geometry as close as possible when folded. While the goal is pretty clear, the process to get there is not.
 
-## What should this tool be able to do?
+## Vision for the Tool
+
+The long-term objective of the project remains identical to the original research notes. To stay aligned with that vision we continue to track the following high-level capabilities:
 
 - load any geometry and process it into a FLD
-- overcome the limitation that the arbitrarily shaped cross section is fixed along the third axis 
-  - add perforated lines to remove additional material; this should result in the wanted geometry
-- be able to split the FLD into multiple parts that can be joined back together after folding
+- overcome the limitation that the arbitrarily shaped cross section is fixed along the third axis
+  - add perforated lines to remove additional material so the resulting pattern produces the desired geometry
+- split the FLD into multiple parts that can be joined back together after folding
   - this is needed because laser cutters are limited in the sheet size they can work on
   - the FLD approximates the outer curves of the mesh
-  - inner cavities should also be drawn on the FLD as perforations that can be removed after folding and gluing 
+  - inner cavities should also be drawn on the FLD as perforations that can be removed after folding and gluing
 
-## Defining The Process
+## Defining the Process
 
-For now, I am still deciding on how to achieve the above mentioned goal. The biggest decision seems to be wheter to develop this as a standalone program or as a Blender addon.
-
-These are the steps needed to produce the FLD for any geometry:
+The roadmap towards the target experience is still evolving. The current open questions mainly revolve around whether the tooling should remain a standalone application or grow into a Blender add-on. Regardless of the delivery vehicle, the workflow we want to enable is:
 
 - Load geometry from external file
-- partition mesh into multiple zones, depending on manufacturing constraints (maximum size of sheets)
+- Partition the mesh into multiple zones, depending on manufacturing constraints (maximum size of sheets)
   - have the user select some parameters:
     - manually define zones
-    - direction of folding 
+    - direction of folding
     - honeycomb cell size
     - controls for the following steps...
-- in each zone determine the upper and lower curve (hull of projection); right now this is defined by two functions
-- sample functions in honeycomb cell size steps
+- In each zone determine the upper and lower curve (hull of projection); right now this is defined by two functions
+- Sample functions in honeycomb cell size steps
   - build a linear approximation (this is needed to obtain a foldable end result!)
   - add offset so that original geometry is definitely inside the linear approximation
-- calculate FLD parameters and create first iteration FLD (no cavities nor perforation lines for exact outer hull)
-- build 3D honeycomb mesh of the FLD
-- intersect the real geometry with the honeycomb mesh
-- transform intersection points (optimally polylines) from 3D onto 2D FLD
-  - create perforation lines 
- 
+- Calculate FLD parameters and create first iteration FLD (no cavities nor perforation lines for exact outer hull)
+- Build 3D honeycomb mesh of the FLD
+- Intersect the real geometry with the honeycomb mesh
+- Transform intersection points (optimally polylines) from 3D onto 2D FLD
+  - create perforation lines
 
-## Contributing
+## Getting Started
 
-If you have an idea regarding this tool, please let me know by creating an issue. As it is still in its design phase, I won't be accepting pull request. This will change when the shape of this project becomes clearer.
+The repository now ships as an installable Python package. The tooling lives in
+`kirigami_honeycomb` under `src/` and provides reusable functions as well as a
+small command line interface for experiments. Install the project in a virtual
+environment together with the development tools. The numerical routines depend
+on `numpy` for efficient vectorised sampling and fold calculations, so make sure
+your environment can compile binary wheels on your platform:
+
+```bash
+pip install -e .[dev]
+```
+
+### Command Line Interface
+
+Use the `kirigami-fld` entry point to generate a fold line diagram (FLD). It
+supports either analytic expressions or a pre-existing mesh as the geometry
+source.
+
+#### Analytic expressions
+
+To sample the classic workflow provide the upper and lower curves as Python
+expressions:
+
+```bash
+kirigami-fld "0.002*x**2 - 0.4*x + 40" "10*sin(2*pi*x/200)" output.svg --domain 0 200 --cell-size 20 --linearise
+```
+
+The command samples the provided expressions, applies the optional foldable
+linearisation, computes the fold pattern and writes a simple SVG visualisation.
+
+#### Mesh slicing
+
+You can now ingest arbitrary geometry meshes (OBJ/STL/PLY/...) and derive the
+cross section automatically. The CLI will slice the mesh along the chosen axis
+and estimate the upper/lower envelope before computing the fold diagram:
+
+```bash
+kirigami-fld mesh ./fixtures/wing_section.stl output.svg --axis x --height-axis z --cell-size 20
+```
+
+Use `--spacing` to control the distance between slicing planes. By default the
+tool samples every half cell, mirroring the analytic workflow.
+
+#### Mesh viewer
+
+Before committing to a slicing direction launch the lightweight viewer to see
+the mesh with the selected axes highlighted:
+
+```bash
+kirigami-fld viewer ./fixtures/wing_section.stl --axis y --height-axis z
+```
+
+The viewer renders the mesh with Matplotlib so you can rotate the model and
+verify that the slicing/height axes align with the intended folding direction.
+
+### Python API
+
+The package exposes composable building blocks that encapsulate the cleaned up
+implementation from the research papers:
+
+```python
+from kirigami_honeycomb import (
+    sample_cross_section,
+    linearize_cross_section,
+    sample_mesh_cross_section,
+    load_mesh,
+    compute_fold_pattern,
+    generate_hex_grid,
+)
+
+samples = sample_cross_section(upper, lower, domain=(0, 200), cell_size=20)
+samples = linearize_cross_section(samples)
+pattern = compute_fold_pattern(samples)
+mesh = load_mesh("wing_section.stl")
+mesh_samples = sample_mesh_cross_section(mesh, axis="x", height_axis="z", cell_size=20)
+grid = generate_hex_grid(cell_size=20, width=pattern.length, length=200)
+```
+
+Each function is unit tested and documented to serve as a stable foundation for
+future work such as 3D mesh morphing and perforation line placement.
+
+### Running the Tests
+
+Execute the automated checks with `pytest`:
+
+```bash
+pytest
+```
+
+The suite includes regression cases for mesh slicing (`tests/test_mesh_io.py`)
+to ensure the generated envelopes remain stable as the loader evolves.
 
 ## License
 

@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+# Generated demo assets
+docs/examples/*.stl
+docs/examples/*.svg
+docs/examples/*.png

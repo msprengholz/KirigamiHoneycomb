@@ -69,14 +69,8 @@ pip install -e .[dev]
 
 ### Command Line Interface
 
-Use the `kirigami-fld` entry point to generate a fold line diagram (FLD). It
-supports either analytic expressions or a pre-existing mesh as the geometry
-source.
-
-#### Analytic expressions
-
-To sample the classic workflow provide the upper and lower curves as Python
-expressions:
+Use the `kirigami-fld` entry point to generate a fold line diagram (FLD) from
+analytic upper and lower cross-section expressions:
 
 ```bash
 kirigami-fld "0.002*x**2 - 0.4*x + 40" "10*sin(2*pi*x/200)" output.svg --domain 0 200 --cell-size 20 --linearise
@@ -84,55 +78,6 @@ kirigami-fld "0.002*x**2 - 0.4*x + 40" "10*sin(2*pi*x/200)" output.svg --domain 
 
 The command samples the provided expressions, applies the optional foldable
 linearisation, computes the fold pattern and writes a simple SVG visualisation.
-If you cannot easily view SVGs in your environment, use a `.png` suffix instead
-(`output.png`) and the tool will render a raster preview via Matplotlib.
-
-#### Mesh slicing
-
-You can now ingest arbitrary geometry meshes (OBJ/STL/PLY/...) and derive the
-cross section automatically. The CLI will slice the mesh along the chosen axis
-and estimate the upper/lower envelope before computing the fold diagram:
-
-```bash
-kirigami-fld mesh ./fixtures/wing_section.stl output.svg --axis x --height-axis z --cell-size 20
-```
-
-Use `--spacing` to control the distance between slicing planes. By default the
-tool samples every half cell, mirroring the analytic workflow.
-
-#### Mesh viewer
-
-Before committing to a slicing direction launch the lightweight viewer to see
-the mesh with the selected axes highlighted:
-
-```bash
-kirigami-fld viewer ./fixtures/wing_section.stl --axis y --height-axis z
-```
-
-The viewer renders the mesh with Matplotlib so you can rotate the model and
-verify that the slicing/height axes align with the intended folding direction.
-
-### Ready-made mesh example
-
-If you simply want to try the workflow without hunting for your own geometry,
-run the helper script under `docs/examples/`:
-
-```bash
-python docs/examples/generate_demo_assets.py
-```
-
-The script builds a gently twisted "wing" panel, then writes the generated
-assets (`wave_panel_demo.stl`, `wave_panel_demo.svg`, `wave_panel_demo.png`) to
-`docs/examples/`. Binary artifacts are `.gitignore`-ed in this environment, so
-run the helper whenever you need fresh copies. Once the files exist locally you
-can open the SVG/PNG previews or feed the STL into the CLI to experiment with
-different slicing parameters:
-
-```bash
-kirigami-fld mesh docs/examples/wave_panel_demo.stl demo.svg --axis x --height-axis z --cell-size 20 --linearise
-```
-
-This produces `demo.svg` in the repository root using the default settings.
 
 ### Python API
 
@@ -143,8 +88,6 @@ implementation from the research papers:
 from kirigami_honeycomb import (
     sample_cross_section,
     linearize_cross_section,
-    sample_mesh_cross_section,
-    load_mesh,
     compute_fold_pattern,
     generate_hex_grid,
 )
@@ -152,8 +95,6 @@ from kirigami_honeycomb import (
 samples = sample_cross_section(upper, lower, domain=(0, 200), cell_size=20)
 samples = linearize_cross_section(samples)
 pattern = compute_fold_pattern(samples)
-mesh = load_mesh("wing_section.stl")
-mesh_samples = sample_mesh_cross_section(mesh, axis="x", height_axis="z", cell_size=20)
 grid = generate_hex_grid(cell_size=20, width=pattern.length, length=200)
 ```
 
@@ -167,12 +108,6 @@ Execute the automated checks with `pytest`:
 ```bash
 pytest
 ```
-
-The suite includes regression cases for mesh slicing (`tests/test_mesh_io.py`)
-to ensure the generated envelopes remain stable as the loader evolves. The
-repository also ships with a GitHub Actions workflow under
-`.github/workflows/ci.yml` so every push or pull request runs the same pytest
-suite automatically.
 
 ## License
 

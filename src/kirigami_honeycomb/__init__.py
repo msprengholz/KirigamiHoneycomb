@@ -7,8 +7,6 @@ from .cross_section import (
 )
 from .fold_pattern import FoldPattern, compute_fold_pattern
 from .honeycomb import HexGrid, generate_hex_grid
-from .mesh_io import load_mesh, sample_mesh_cross_section
-from .viewer import launch_mesh_viewer
 
 __all__ = [
     "CrossSectionSamples",
@@ -18,7 +16,4 @@ __all__ = [
     "compute_fold_pattern",
     "HexGrid",
     "generate_hex_grid",
-    "load_mesh",
-    "sample_mesh_cross_section",
-    "launch_mesh_viewer",
 ]

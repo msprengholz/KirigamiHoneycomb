@@ -85,10 +85,11 @@ def launch_cut_editor(
     ax.plot(x, samples.upper, color="#0a6", lw=1.2, label="upper")
     ax.plot(x, samples.lower, color="#c41", lw=1.2, label="lower")
     if perforation_lines:
-        for line in perforation_lines:
+        for index, line in enumerate(perforation_lines):
             xs = [p[0] for p in line]
             ys = [p[1] for p in line]
-            ax.plot(xs, ys, color="#e67e22", lw=0.8, ls=":", label="perforation")
+            label = "perforation" if index == 0 else None
+            ax.plot(xs, ys, color="#e67e22", lw=0.8, ls=":", label=label)
     ax.set_title("Drag vertical lines to adjust cut placement")
     ax.set_xlabel("Cross-section coordinate")
     ax.set_ylabel("Height")

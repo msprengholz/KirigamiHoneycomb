@@ -28,9 +28,9 @@ def test_export_fold_diagram_with_perforations(tmp_path) -> None:
     )
     pattern = compute_fold_pattern(samples)
     output = tmp_path / "diagram_with_perforation.svg"
-    perforation_lines = [[(0.0, 5.0), (10.0, 6.0), (20.0, 5.5)]]
+    test_perforation_line = [[(0.0, 5.0), (10.0, 6.0), (20.0, 5.5)]]
 
-    export_fold_diagram(samples, pattern, output, perforation_lines=perforation_lines)
+    export_fold_diagram(samples, pattern, output, perforation_lines=test_perforation_line)
 
     content = output.read_text(encoding="utf-8")
     assert "dasharray" in content

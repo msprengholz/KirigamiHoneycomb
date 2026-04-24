@@ -26,7 +26,15 @@ def _polyline(
     return dwg.polyline(points=points, stroke=stroke, fill="none", stroke_width=0.6)
 
 
-def export_fold_diagram(samples: CrossSectionSamples, pattern: FoldPattern, output: Path) -> None:
+def export_fold_diagram(
+    samples: CrossSectionSamples,
+    pattern: FoldPattern,
+    output: Path,
+    *,
+    a_positions: Iterable[float] | None = None,
+    b_positions: Iterable[float] | None = None,
+    perforation_lines: Iterable[Iterable[tuple[float, float]]] | None = None,
+) -> None:
     """Write a simple SVG visualisation of the fold pattern."""
 
     x, upper, lower = samples.as_tuple()
@@ -46,15 +54,30 @@ def export_fold_diagram(samples: CrossSectionSamples, pattern: FoldPattern, outp
     dwg.add(_polyline(dwg, upper_points, stroke="#0a6"))
     dwg.add(_polyline(dwg, lower_points, stroke="#c41"))
 
-    for position in pattern.a_positions:
+    effective_a_positions = pattern.a_positions if a_positions is None else list(a_positions)
+    effective_b_positions = pattern.b_positions if b_positions is None else list(b_positions)
+
+    for position in effective_a_positions:
         start = (padding + position, padding)
         end = (padding + position, padding + height)
         dwg.add(_line(dwg, start=start, end=end))
 
-    for position in pattern.b_positions:
+    for position in effective_b_positions:
         start = (padding + position, padding)
         end = (padding + position, padding + height)
         dwg.add(_line(dwg, start=start, end=end))
+
+    if perforation_lines is not None:
+        for line in perforation_lines:
+            transformed = [_transform(xi, yi) for xi, yi in line]
+            perforation = dwg.polyline(
+                points=transformed,
+                stroke="#e67e22",
+                fill="none",
+                stroke_width=0.5,
+            )
+            perforation.dasharray([3, 2])
+            dwg.add(perforation)
 
     output.parent.mkdir(parents=True, exist_ok=True)
     dwg.saveas(str(output))

@@ -79,6 +79,19 @@ kirigami-fld "0.002*x**2 - 0.4*x + 40" "10*sin(2*pi*x/200)" output.svg --domain 
 The command samples the provided expressions, applies the optional foldable
 linearisation, computes the fold pattern and writes a simple SVG visualisation.
 
+To interactively adjust cut placement, launch the GUI mode:
+
+```bash
+kirigami-fld "0.002*x**2 - 0.4*x + 40" "10*sin(2*pi*x/200)" output.svg --domain 0 200 --cell-size 20 --linearise --gui
+```
+
+To include perforation guide lines derived from a 3D mesh (for geometry that
+is not representable as a pure 2.5D upper/lower envelope), add a mesh source:
+
+```bash
+kirigami-fld "0.002*x**2 - 0.4*x + 40" "10*sin(2*pi*x/200)" output.svg --gui --perforation-mesh model.stl
+```
+
 ### Python API
 
 The package exposes composable building blocks that encapsulate the cleaned up

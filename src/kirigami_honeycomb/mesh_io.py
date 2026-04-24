@@ -12,7 +12,7 @@ from .cross_section import CrossSectionSamples
 
 AxisName = Literal["x", "y", "z"]
 
-__all__ = ["load_mesh", "sample_mesh_cross_section"]
+__all__ = ["load_mesh", "sample_mesh_cross_section", "sample_mesh_perforation_lines"]
 
 
 def load_mesh(path: str | Path, *, process: bool = True) -> trimesh.Trimesh:
@@ -102,6 +102,67 @@ def sample_mesh_cross_section(
     return CrossSectionSamples(coordinates, upper, lower, cell_size)
 
 
+def sample_mesh_perforation_lines(
+    mesh_or_path: trimesh.Trimesh | str | Path,
+    *,
+    axis: AxisName = "x",
+    height_axis: AxisName = "z",
+    spacing: float | None = None,
+    cell_size: float = 20.0,
+    max_lines: int = 6,
+) -> list[list[tuple[float, float]]]:
+    """Extract interior perforation guide lines from mesh slices.
+
+    The function slices the mesh with the same setup as ``sample_mesh_cross_section``
+    and tracks interior height levels (excluding outer min/max envelope). Those
+    interior levels are returned as polyline coordinates in cross-section space.
+    """
+
+    if max_lines <= 0:
+        raise ValueError("max_lines must be greater than zero")
+    mesh = load_mesh(mesh_or_path) if not isinstance(mesh_or_path, trimesh.Trimesh) else mesh_or_path
+
+    axis_index = _axis_index(axis)
+    height_index = _axis_index(height_axis)
+    if axis_index == height_index:
+        raise ValueError("axis and height_axis must refer to different dimensions")
+
+    if cell_size <= 0:
+        raise ValueError("cell_size must be greater than zero")
+    if spacing is None:
+        spacing = cell_size / 2.0
+    if spacing <= 0:
+        raise ValueError("spacing must be greater than zero")
+
+    bounds = mesh.bounds
+    coordinates = _build_coordinates(bounds[0, axis_index], bounds[1, axis_index], spacing)
+    origin = mesh.centroid
+    normal = np.zeros(3)
+    normal[axis_index] = 1.0
+    heights = coordinates - origin[axis_index]
+    sections = mesh.section_multiplane(plane_origin=origin, plane_normal=normal, heights=heights)
+
+    layers = np.full((max_lines, coordinates.size), np.nan, dtype=float)
+    for index, section in enumerate(sections):
+        if section is None or section.vertices.size == 0:
+            continue
+        section_vertices = _section_vertices_to_3d(section)
+        level_values = _interior_levels(section_vertices[:, height_index], max_lines=max_lines)
+        if level_values.size == 0:
+            continue
+        layers[: level_values.size, index] = level_values
+
+    lines: list[list[tuple[float, float]]] = []
+    for layer in layers:
+        mask = np.isfinite(layer)
+        if np.count_nonzero(mask) < 2:
+            continue
+        y = np.interp(coordinates, coordinates[mask], layer[mask])
+        line = [(float(x), float(v)) for x, v in zip(coordinates, y)]
+        lines.append(line)
+    return lines
+
+
 def _axis_index(axis: AxisName) -> int:
     mapping = {"x": 0, "y": 1, "z": 2}
     try:
@@ -130,6 +191,18 @@ def _interpolate_missing(values: np.ndarray, coordinates: np.ndarray) -> np.ndar
     return interpolated
 
 
+def _interior_levels(values: np.ndarray, *, max_lines: int) -> np.ndarray:
+    rounded = np.round(values.astype(float), 7)
+    unique = np.unique(rounded)
+    if unique.size <= 2:
+        return np.array([], dtype=float)
+    interior = unique[1:-1]
+    if interior.size <= max_lines:
+        return interior
+    indices = np.linspace(0, interior.size - 1, num=max_lines, dtype=int)
+    return interior[indices]
+
+
 def _section_vertices_to_3d(section: trimesh.path.Path2D | trimesh.path.Path3D) -> np.ndarray:
     vertices = section.vertices
     if vertices.ndim != 2:
@@ -143,4 +216,3 @@ def _section_vertices_to_3d(section: trimesh.path.Path2D | trimesh.path.Path3D) 
     zeros = np.zeros((vertices.shape[0], 1), dtype=vertices.dtype)
     homogenous = np.hstack([vertices, zeros])
     return trimesh.transform_points(homogenous, section.metadata["to_3D"])
-

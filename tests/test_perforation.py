@@ -22,5 +22,5 @@ def test_sample_mesh_perforation_lines_returns_lines_for_curved_mesh() -> None:
 
 def test_sample_mesh_perforation_lines_rejects_invalid_max_lines() -> None:
     mesh = trimesh.creation.box(extents=(10.0, 10.0, 10.0))
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="max_lines must be greater than zero"):
         sample_mesh_perforation_lines(mesh, max_lines=0)

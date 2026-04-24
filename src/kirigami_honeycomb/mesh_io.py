@@ -157,7 +157,8 @@ def sample_mesh_perforation_lines(
         mask = np.isfinite(layer)
         if np.count_nonzero(mask) < 2:
             continue
-        y = np.interp(coordinates, coordinates[mask], layer[mask])
+        valid_x_coords = coordinates[mask]
+        y = np.interp(coordinates, valid_x_coords, layer[mask])
         line = [(float(x), float(v)) for x, v in zip(coordinates, y)]
         lines.append(line)
     return lines

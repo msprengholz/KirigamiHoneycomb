@@ -111,7 +111,8 @@ def launch_cut_editor(
 
     target = Path(output)
 
-    def _save(_: object) -> None:
+    def _save(event: object) -> None:
+        del event
         updated = FoldPattern(editor.a_positions, editor.b_positions, pattern.offsets)
         export_fold_diagram(
             samples,
